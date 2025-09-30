@@ -1,0 +1,23 @@
+# Archivos y carpetas que Unity Genera
+[Ll]ibrary/
+[Tt]emp/
+[Oo]bj/
+[Bb]uild/
+[Bb]uilds/
+[Ll]ogs/
+UserSettings/
+
+# Archivos de VS/VSCode
+.vscode/
+.vs/
+*.csproj
+*.unityproj
+*.sln
+*.suo
+*.tmp
+*.user
+*.userprefs
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
