@@ -1,0 +1,1 @@
+Sprites del jugador, enemigos u objectos
