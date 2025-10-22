@@ -1,3 +1,4 @@
+using UnityEngine;
 namespace DinoRunner.Interfaces
 {
     public interface AudioService
