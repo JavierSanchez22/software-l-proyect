@@ -15,6 +15,7 @@ namespace DinoRunner.Core
 
         [Header("Sharing Settings (Original GameManager)")]
         [TextArea(3, 10)]
-        public string shareText = "Check out Dino Runner!";
+        public string shareText = "IDontWantAPlayThisF*kinGame (Just Kidding! This Game is Awesome!)";
+        public string shareUrl = "https://giftosoftware.netlify.app";
     }
 }
