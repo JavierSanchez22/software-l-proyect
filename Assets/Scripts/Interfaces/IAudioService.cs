@@ -1,7 +1,8 @@
 using UnityEngine;
-namespace DinoRunner.Interfaces
+
+namespace Assets.Scripts.Interfaces
 {
-    public interface AudioService
+    public interface IAudioService
     {
         void PlaySound(string soundName, float volume = 1f);
         void PlaySoundAt(string soundName, Vector3 position, float volume = 1f);

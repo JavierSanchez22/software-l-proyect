@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace DinoRunner.Interfaces
+namespace Assets.Scripts.Interfaces
 {
-    public interface MovementStrategy
+    public interface IMovementStrategy
     {
         void Execute(Transform transform, float speed);
     }

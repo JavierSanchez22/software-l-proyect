@@ -1,8 +1,8 @@
 using UnityEngine; 
 
-namespace DinoRunner.Interfaces
+namespace Assets.Scripts.Interfaces
 {
-    public interface Collectible
+    public interface ICollectible
     {
         void Collect(GameObject collector);
 

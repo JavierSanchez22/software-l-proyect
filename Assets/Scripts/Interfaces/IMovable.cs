@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace DinoRunner.Interfaces
+namespace Assets.Scripts.Interfaces
 {
-    public interface Movable
+    public interface IMovable
     {
         void Move(Vector2 direction); // Apply movement based on direction
         void ApplyForce(Vector2 force, ForceMode2D mode); // For physics-based movement

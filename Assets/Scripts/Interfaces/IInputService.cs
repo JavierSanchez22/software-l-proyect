@@ -1,8 +1,8 @@
 using UnityEngine;
 
-namespace DinoRunner.Interfaces
+namespace Assets.Scripts.Interfaces
 {
-    public interface InputService
+    public interface IInputService
     {
         Vector2 GetMovementInput(); // Typically just X for platformer
         bool GetJumpInputDown();    // Pressed this frame
