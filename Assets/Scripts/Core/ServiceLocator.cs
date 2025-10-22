@@ -2,9 +2,9 @@
 using UnityEngine;
 using System;
 using System.Collections.Generic;
-using DinoRunner.Patterns.Singleton;
+using Assets.Scripts.Patterns.Singleton;
 
-namespace DinoRunner.Core
+namespace Assets.Scripts.Core
 {
     public class ServiceLocator : SingletonMonoBehaviour<ServiceLocator>
     {

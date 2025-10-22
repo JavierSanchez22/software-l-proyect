@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace DinoRunner.Core
+namespace Assets.Scripts.Core
 {
     [CreateAssetMenu(fileName = "GameConfig", menuName = "DinoRunner/Game Config")]
     public class GameConfig : ScriptableObject

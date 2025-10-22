@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace RedRunner.Patterns.Singleton
+namespace Assets.Scripts.Patterns.Singleton
 {
     // Generic Singleton base class for MonoBehaviour components
     public abstract class SingletonMonoBehaviour<T> : MonoBehaviour where T : SingletonMonoBehaviour<T>
@@ -22,7 +22,7 @@ namespace RedRunner.Patterns.Singleton
                 {
                     if (_instance == null)
                     {
-                        _instance = FindObjectOfType<T>();
+                        _instance = Object.FindFirstObjectByType<T>();
 
                         if (_instance == null)
                         {

@@ -1,12 +1,13 @@
 using UnityEngine;
-using DinoRunner.Patterns.Singleton;
-using DinoRunner.Interfaces;
-using DinoRunner.Core;
+using Assets.Scripts.Patterns.Singleton;
+using Assets.Scripts.Interfaces;
+using Assets.Scripts.Core;
 using UnityEngine.SceneManagement;
-using DinoRunner.Patterns.Observer; // For Events
+// using Assets.Scripts.Patterns.Observer; // For Events
+
 using UnityEngine.Networking;
 
-namespace DinoRunner.Core
+namespace Assets.Scripts.Core
 {
     public class GameManager : SingletonMonoBehaviour<GameManager>
     {
@@ -16,9 +17,9 @@ namespace DinoRunner.Core
         [Header("Configuration")]
         [SerializeField] private GameConfig gameConfig; 
 
-        private InputService inputService;
-        private AudioService audioService;
-        private SaveService saveService;
+        private IInputService inputService;
+        private IAudioService audioService;
+        private ISaveService saveService;
 
         public GameState CurrentState => currentState;
 
@@ -32,9 +33,9 @@ namespace DinoRunner.Core
         private void Start()
         {
             if (ServiceLocator.Instance == null) { Debug.LogError("[GameManager] ServiceLocator not ready!"); return; }
-            inputService = ServiceLocator.Instance.GetService<InputService>();
-            audioService = ServiceLocator.Instance.GetService<AudioService>();
-            saveService = ServiceLocator.Instance.GetService<SaveService>();
+            inputService = ServiceLocator.Instance.GetService<IInputService>();
+            audioService = ServiceLocator.Instance.GetService<IAudioService>();
+            saveService = ServiceLocator.Instance.GetService<ISaveService>();
 
             LoadAudioSettings();
 
@@ -50,7 +51,7 @@ namespace DinoRunner.Core
                 ChangeState(GameState.Playing);
             }
 
-            GameEventSystem.Instance.Subscribe(GameEvents.PLAYER_DIED, HandlePlayerDeath);
+            // GameEventSystem.Instance.Subscribe(GameEvents.PLAYER_DIED, HandlePlayerDeath);
         }
 
         private System.Collections.IEnumerator InitialLoadSequence()
@@ -74,7 +75,7 @@ namespace DinoRunner.Core
 
         protected override void OnDestroy()
         {
-            GameEventSystem.Instance.Unsubscribe(GameEvents.PLAYER_DIED, HandlePlayerDeath);
+            // GameEventSystem.Instance.Unsubscribe(GameEvents.PLAYER_DIED, HandlePlayerDeath);
             base.OnDestroy();
         }
 
@@ -94,29 +95,29 @@ namespace DinoRunner.Core
             {
                 case GameState.Loading:
                     Time.timeScale = 1f;
-                    GameEventSystem.Instance.Publish(GameEvents.SHOW_SCREEN, UIScreenInfo.LOADING_SCREEN);
+                    // GameEventSystem.Instance.Publish(GameEvents.SHOW_SCREEN, UIScreenInfo.LOADING_SCREEN);
                     break;
                 case GameState.Menu:
                     Time.timeScale = 1f;
                     audioService?.PlayMusic("menu_music");
-                    GameEventSystem.Instance.Publish(GameEvents.SHOW_SCREEN, UIScreenInfo.START_SCREEN);
+                    // GameEventSystem.Instance.Publish(GameEvents.SHOW_SCREEN, UIScreenInfo.START_SCREEN);
                     break;
                 case GameState.Playing:
                     Time.timeScale = 1f;
                     inputService?.SetInputEnabled(true);
                     audioService?.PlayMusic("game_music");
-                    GameEventSystem.Instance.Publish(GameEvents.SHOW_SCREEN, UIScreenInfo.IN_GAME_SCREEN);
+                    // GameEventSystem.Instance.Publish(GameEvents.SHOW_SCREEN, UIScreenInfo.IN_GAME_SCREEN);
                     break;
                 case GameState.Paused:
                     Time.timeScale = 0f;
                     inputService?.SetInputEnabled(false);
-                    GameEventSystem.Instance.Publish(GameEvents.SHOW_SCREEN, UIScreenInfo.PAUSE_SCREEN);
+                    // GameEventSystem.Instance.Publish(GameEvents.SHOW_SCREEN, UIScreenInfo.PAUSE_SCREEN);
                     break;
                 case GameState.GameOver:
                     Time.timeScale = 1f;
                     inputService?.SetInputEnabled(false);
                     audioService?.PlaySound("game_over");
-                    GameEventSystem.Instance.Publish(GameEvents.SHOW_SCREEN, UIScreenInfo.END_SCREEN);
+                    // GameEventSystem.Instance.Publish(GameEvents.SHOW_SCREEN, UIScreenInfo.END_SCREEN);
                     break;
                 case GameState.Victory:
                     Time.timeScale = 1f;
@@ -130,11 +131,11 @@ namespace DinoRunner.Core
         {
             switch (state)
             {
-                case GameState.Loading: GameEventSystem.Instance.Publish(GameEvents.HIDE_SCREEN, UIScreenInfo.LOADING_SCREEN); break;
-                case GameState.Menu: GameEventSystem.Instance.Publish(GameEvents.HIDE_SCREEN, UIScreenInfo.START_SCREEN); break;
-                case GameState.Playing: GameEventSystem.Instance.Publish(GameEvents.HIDE_SCREEN, UIScreenInfo.IN_GAME_SCREEN); break;
-                case GameState.Paused: GameEventSystem.Instance.Publish(GameEvents.HIDE_SCREEN, UIScreenInfo.PAUSE_SCREEN); break;
-                case GameState.GameOver: GameEventSystem.Instance.Publish(GameEvents.HIDE_SCREEN, UIScreenInfo.END_SCREEN); break;
+                // case GameState.Loading: GameEventSystem.Instance.Publish(GameEvents.HIDE_SCREEN, UIScreenInfo.LOADING_SCREEN); break;
+                // case GameState.Menu: GameEventSystem.Instance.Publish(GameEvents.HIDE_SCREEN, UIScreenInfo.START_SCREEN); break;
+                // case GameState.Playing: GameEventSystem.Instance.Publish(GameEvents.HIDE_SCREEN, UIScreenInfo.IN_GAME_SCREEN); break;
+                // case GameState.Paused: GameEventSystem.Instance.Publish(GameEvents.HIDE_SCREEN, UIScreenInfo.PAUSE_SCREEN); break;
+                // case GameState.GameOver: GameEventSystem.Instance.Publish(GameEvents.HIDE_SCREEN, UIScreenInfo.END_SCREEN); break;
             }
         }
 
@@ -195,7 +196,7 @@ namespace DinoRunner.Core
         public void SetAudioEnabled(bool isEnabled)
         {
             AudioListener.volume = isEnabled ? 1f : 0f;
-            GameEventSystem.Instance.Publish(GameEvents.AUDIO_STATE_CHANGED, isEnabled);
+            // GameEventSystem.Instance.Publish(GameEvents.AUDIO_STATE_CHANGED, isEnabled);
         }
 
         private void LoadAudioSettings()
@@ -213,7 +214,6 @@ namespace DinoRunner.Core
             if (gameConfig != null)
             {
                 Application.OpenURL(string.Format(urlTemplate, UnityWebRequest.EscapeURL(gameConfig.shareText), UnityWebRequest.EscapeURL(gameConfig.shareUrl)));
-                Application.OpenURL(url);
             }
             else
             {

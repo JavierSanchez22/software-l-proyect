@@ -1,10 +1,10 @@
 // --- Assets/Scripts/Core/GameInitializer.cs ---
 using UnityEngine;
-using DinoRunner.Core;
-using DinoRunner.Services;
-using DinoRunner.Interfaces;
+using Assets.Scripts.Core;
+// using DinoRunner.Services;
+using Assets.Scripts.Interfaces;
 
-namespace DinoRunner
+namespace Assets.Scripts.Core
 {
     public class GameInitializer : MonoBehaviour
     {
@@ -27,7 +27,7 @@ namespace DinoRunner
             else { Debug.LogError("[GameInitializer] GameConfig not assigned!"); }
 
             var serviceLocator = ServiceLocator.Instance; // Ensures ServiceLocator is created first
-
+/*
             // Initialize and Register Input Service based on Platform
             #if UNITY_ANDROID || UNITY_IOS
                 MobileInputService mobileInputInstance = FindObjectOfType<MobileInputService>();
@@ -58,7 +58,7 @@ namespace DinoRunner
             var audioService = AudioService.Instance;
             var saveService = SaveService.Instance;
             var scoreService = ScoreService.Instance;
-
+*/
             // Initialize GameManager last, as it might depend on other services
             var gameManager = GameManager.Instance;
 
