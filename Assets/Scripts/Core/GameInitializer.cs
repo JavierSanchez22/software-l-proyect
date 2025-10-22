@@ -42,7 +42,7 @@ namespace DinoRunner
                     Debug.LogError("[GameInitializer] MobileInputService instance not found and prefab not assigned!");
                 }
                 // Registration happens in MobileInputService.Awake via Singleton pattern
-                IInputService inputService = MobileInputService.Instance; // Force instance check/creation
+                InputService inputService = MobileInputService.Instance; // Force instance check/creation
                 Debug.Log("[GameInitializer] Using MobileInputService.");
             #else
                 if (FindObjectOfType<InputService>() == null)
@@ -50,7 +50,7 @@ namespace DinoRunner
                     GameObject inputGO = new GameObject("InputService");
                     inputGO.AddComponent<InputService>(); // Will auto-register in Awake
                 }
-                IInputService inputService = InputService.Instance; // Force instance check/creation
+                InputService inputService = InputService.Instance; // Force instance check/creation
                 Debug.Log("[GameInitializer] Using Standard InputService.");
             #endif
 
