@@ -1,24 +1,23 @@
 using UnityEngine;
-using RedRunner.Patterns.Singleton;
-using RedRunner.Patterns.Observer;
-using RedRunner.Core; // For ServiceLocator
-using RedRunner.Interfaces; // For ISaveService
-namespace RedRunner.Services
+using Assets.Scripts.Patterns.Singleton;
+using Assets.Scripts.Patterns.Observer;
+using Assets.Scripts.Core; // For ServiceLocator
+using Assets.Scripts.Interfaces; // For ISaveService
+namespace Assets.Scripts.Services
 {
     public class ScoreService : SingletonMonoBehaviour<ScoreService>
     {
         private int currentScore = 0;
-        private float currentDistanceScore = 0f; // Score based on distance
-        traveled
+        private float currentDistanceScore = 0f;
     
         private int highScore = 0;
         private int lastScore = 0;
         private ISaveService saveService;
-        private Transform playerTransform; // To track distance
+        private Transform playerTransform; 
         public int HighScore => highScore;
         public int LastScore => lastScore;
         public int CurrentScore => currentScore +
-        Mathf.FloorToInt(currentDistanceScore); // Combine points + distance
+        Mathf.FloorToInt(currentDistanceScore);
         
         protected override void Awake()
         {
@@ -34,7 +33,7 @@ namespace RedRunner.Services
             // Subscribe to relevant events
             GameEventSystem.Instance.Subscribe(GameEvents.ENEMY_KILLED, OnEnemyKilled);
             GameEventSystem.Instance.Subscribe(GameEvents.COIN_COLLECTED,OnCoinCollected);
-            // GameEventSystem.Instance.Subscribe(GameEvents.LEVEL_COMPLETE,OnLevelComplete); // If bonus score exists
+            // GameEventSystem.Instance.Subscribe(GameEvents.LEVEL_COMPLETE,OnLevelComplete); 
             GameEventSystem.Instance.Subscribe(GameEvents.GAME_RESTARTED, ResetScore); // Reset on restart
             GameEventSystem.Instance.Subscribe(GameEvents.PLAYER_DIED,OnPlayerFinalDeath); // Save score on final death
             // Find player for distance tracking
@@ -49,28 +48,21 @@ namespace RedRunner.Services
             {
                 GameEventSystem.Instance.Unsubscribe(GameEvents.ENEMY_KILLED, OnEnemyKilled);
                 GameEventSystem.Instance.Unsubscribe(GameEvents.COIN_COLLECTED, OnCoinCollected);
-                GameEventSystem.Instance.Unsubscribe(GameEvents.LEVEL_COMPLETE,OnLevelComplete);
                 GameEventSystem.Instance.Unsubscribe(GameEvents.GAME_RESTARTED, ResetScore);
                 GameEventSystem.Instance.Unsubscribe(GameEvents.PLAYER_DIED, OnPlayerFinalDeath);
             }
-            // Save high score on quit? GameManager might handle this better.
-            // SaveHighScore();
             base.OnDestroy();
         }
         private void Update()
         {
-            // Update distance score if player exists and game is playing
             if (playerTransform != null && GameManager.Instance.CurrentState == GameState.Playing)
             {
-                // Assuming score increases based on positive X movement from
-                origin float distance = Mathf.Max(0, playerTransform.position.x); //
-                Adjust if start X isn't 0 
-                    if (distance > currentDistanceScore)
+                float distance = Mathf.Max(0, playerTransform.position.x);
+                if (distance > currentDistanceScore)
                 {
                     currentDistanceScore = distance;
-                    UpdateAndPublishScores(); // Update UI as distance
-                    increases
-            }
+                    UpdateAndPublishScores();
+                }
             }
         }
         private void LoadScores()
@@ -93,8 +85,7 @@ namespace RedRunner.Services
         }
         private void OnPlayerFinalDeath(object data)
         {
-            SaveScores(); // Save scores when the player is completely out of
-            lives
+            SaveScores(); 
         }
         private void AddPoints(int points)
         {
@@ -102,12 +93,11 @@ namespace RedRunner.Services
             currentScore += points;
             UpdateAndPublishScores();
         }
-        private void ResetScore(object data = null) // Can be called by event or directly
+        private void ResetScore(object data = null)
         {
-            SaveScores(); // Save previous score before resetting
+            SaveScores();
             currentScore = 0;
             currentDistanceScore = 0f;
-            // Don't reset highScore or lastScore here, they persist
             UpdateAndPublishScores();
     }
 
@@ -115,27 +105,20 @@ namespace RedRunner.Services
     private void OnEnemyKilled(object data)
         {
             if (data is int scoreValue) AddPoints(scoreValue);
-            else if (data is MVC.Models.Enemy.EnemyModel enemyModel)
-                AddPoints(enemyModel.ScoreValue);
+            // else if (data is MVC.Models.Enemy.EnemyModel enemyModel)
+            //     AddPoints(enemyModel.ScoreValue);
         }
         private void OnCoinCollected(object data)
         {
-            if (data is int value) AddPoints(value * 10); // Example: coin gives 10 points
-        // Or get value from Coin Model if event passes it
-    }
-        // private void OnLevelComplete(object data) { /* Add bonus points */
+            if (data is int value) AddPoints(value * 10);
+        
     }
 
     private void UpdateAndPublishScores()
     {
-        // Publish combined score
         GameEventSystem.Instance.Publish(GameEvents.SCORE_CHANGED, CurrentScore);
-        // Optionally publish high score too if UI needs it frequently
-        //
-        GameEventSystem.Instance.Publish(GameEvents.HIGH_SCORE_CHANGED, highScore);
     }
 
-    // Public getters for UI or other systems
     public int GetCurrentScore() => CurrentScore;
     public int GetHighScore() => highScore;
     public int GetLastScore() => lastScore;

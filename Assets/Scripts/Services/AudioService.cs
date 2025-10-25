@@ -1,11 +1,11 @@
 using UnityEngine;
 using System.Collections.Generic;
-using RedRunner.Interfaces;
-using RedRunner.Patterns.Singleton;
-using RedRunner.Core; 
+using Assets.Scripts.Interfaces;
+using Assets.Scripts.Patterns.Singleton;
+using Assets.Scripts.Core; 
 
 
-namespace RedRunner.Services
+namespace Assets.Scripts.Services
 {
     public class AudioService : SingletonMonoBehaviour<AudioService>,
     IAudioService
@@ -13,13 +13,12 @@ namespace RedRunner.Services
         [Header("Audio Sources (Assign or create dynamically)")]
         [SerializeField] private AudioSource musicSource;
         [SerializeField] private AudioSource sfxSource; // General SFX
-        [SerializeField] private AudioSource playerFootstepSource; // Specific
-        sources if needed
+        [SerializeField] private AudioSource playerFootstepSource; // Specific sources if needed
         [SerializeField] private AudioSource playerJumpSource;
         [SerializeField] private AudioSource coinSource;
 
         // Add more specific sources as needed (e.g., enemy sounds, UI sounds)
-        [Header("Audio Clips (Assign in Inspector or load from Resources)")];
+        [Header("Audio Clips (Assign in Inspector or load from Resources)")]
         [SerializeField] private List<AudioClipData> musicClips;
         [SerializeField] private List<AudioClipData> sfxClips;
         private Dictionary<string, AudioClip> musicCache = new
@@ -44,27 +43,20 @@ public AudioClip clip;
             CacheClips();
             ServiceLocator.Instance.RegisterService<IAudioService>(this);
             // Load volume settings if using ISaveService
-            // masterVolume = SaveService.Instance?.LoadGame<float>
-            ("masterVolume", 1f) ?? 1f;
-            // musicVolume = SaveService.Instance?.LoadGame<float>
-            ("musicVolume", 1f) ?? 1f;
-            // sfxVolume = SaveService.Instance?.LoadGame<float>("sfxVolume",
-            1f) ?? 1f;
+            // masterVolume = SaveService.Instance?.LoadGame<float>("masterVolume", 1f) ?? 1f;
+            // musicVolume = SaveService.Instance?.LoadGame<float>("musicVolume", 1f) ?? 1f;
+            // sfxVolume = SaveService.Instance?.LoadGame<float>("sfxVolume", 1f) ?? 1f;
             ApplyVolumeSettings();
         }
 
         private void InitializeSources()
         {
             // If sources aren't assigned, create them dynamically as children
-            if (musicSource == null) musicSource =
-            CreateAudioSource("MusicSource", true);
-            if (sfxSource == null) sfxSource = CreateAudioSource("SFXSource",
-            false);
-            if (playerFootstepSource == null) playerFootstepSource =
-            CreateAudioSource("PlayerFootstepSource", false);
-            if (playerJumpSource == null) playerJumpSource =
-            CreateAudioSource("PlayerJumpSource", false);
-            if (coinSource == null) coinSource =
+            if (musicSource == null) musicSource = CreateAudioSource("MusicSource", true);
+            if (sfxSource == null) sfxSource = CreateAudioSource("SFXSource", false);
+            if (playerFootstepSource == null) playerFootstepSource = CreateAudioSource("PlayerFootstepSource", false);
+            if (playerJumpSource == null) playerJumpSource = CreateAudioSource("PlayerJumpSource", false);
+            if (coinSource == null) coinSource = CreateAudioSource("CoinSource", false);
             CreateAudioSource("CoinSource", false);
             // Initialize others...
         }
@@ -92,17 +84,14 @@ public AudioClip clip;
         {
             if (sfxCache.TryGetValue(soundName, out AudioClip clip))
             {
-                // Use a specific source if logic dictates, otherwise use
-                general SFX source
+                // Use a specific source if logic dictates, otherwise usegeneral SFX source
                 AudioSource sourceToUse = GetSourceForSound(soundName);
                 if (sourceToUse != null)
                 {
                     sourceToUse.PlayOneShot(clip, volumeScale);
                 }
             }
-            else Debug.LogWarning($"[AudioService] SFX Clip not found:
-        { soundName}
-            ");
+            else Debug.LogWarning($"[AudioService] SFX Clip not found:{ soundName}");
         }
 
         public void PlaySoundAt(string soundName, Vector3 position, float
@@ -113,9 +102,7 @@ public AudioClip clip;
                 AudioSource.PlayClipAtPoint(clip, position, sfxVolume *
                 masterVolume * volumeScale);
             }
-            else Debug.LogWarning($"[AudioService] SFX Clip not found:
-        { soundName}
-            ");
+            else Debug.LogWarning($"[AudioService] SFX Clip not found:{ soundName}");
         }
 
         public void PlayMusic(string musicName)
@@ -127,9 +114,7 @@ public AudioClip clip;
                 musicSource.clip = clip;
                 musicSource.Play();
             }
-            else Debug.LogWarning($"[AudioService] Music Clip not found:
-        { musicName}
-            ");
+            else Debug.LogWarning($"[AudioService] Music Clip not found:{ musicName}");
         }
 
         public void StopMusic()
@@ -149,34 +134,26 @@ public AudioClip clip;
         {
             musicVolume = Mathf.Clamp01(volume);
             ApplyVolumeSettings();
-            // Save setting: SaveService.Instance?.SaveGame("musicVolume",
-            musicVolume);
+            // Save setting: SaveService.Instance?.SaveGame("musicVolume",musicVolume);
         }
 
         public void SetSFXVolume(float volume)
         {
             sfxVolume = Mathf.Clamp01(volume);
             ApplyVolumeSettings();
-            // Save setting: SaveService.Instance?.SaveGame("sfxVolume",
-            sfxVolume);
+            // Save setting: SaveService.Instance?.SaveGame("sfxVolume",sfxVolume);
         }
 
         private void ApplyVolumeSettings()
         {
             // Apply volume respecting master volume
-            if (musicSource != null) musicSource.volume = musicVolume *
-            masterVolume;
-            if (sfxSource != null) sfxSource.volume = sfxVolume *
-            masterVolume;
-            if (playerFootstepSource != null) playerFootstepSource.volume =
-            sfxVolume * masterVolume;
-            if (playerJumpSource != null) playerJumpSource.volume = sfxVolume
-            * masterVolume;
-            if (coinSource != null) coinSource.volume = sfxVolume *
-            masterVolume;
+            if (musicSource != null) musicSource.volume = musicVolume * masterVolume;
+            if (sfxSource != null) sfxSource.volume = sfxVolume * masterVolume;
+            if (playerFootstepSource != null) playerFootstepSource.volume = sfxVolume * masterVolume;
+            if (playerJumpSource != null) playerJumpSource.volume = sfxVolume * masterVolume;
+            if (coinSource != null) coinSource.volume = sfxVolume * masterVolume;
             // Apply to other sources...
-            // Also update global AudioListener volume (can be redundant if
-            using masterVolume)
+            // Also update global AudioListener volume (can be redundant ifusing masterVolume)
             // AudioListener.volume = masterVolume;
 }
 

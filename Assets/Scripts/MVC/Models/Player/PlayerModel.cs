@@ -1,7 +1,7 @@
 using UnityEngine;
 using Assets.Scripts.Interfaces;
 using Assets.Scripts.MVC.Models.Player;
-// using DinoRunner.Patterns.Observer;
+using Assets.Scripts.Patterns.Observer;
 
 namespace Assets.Scripts.MVC.Models.Player
 {
@@ -51,7 +51,7 @@ namespace Assets.Scripts.MVC.Models.Player
             if (IsInvulnerable || Health <= 0) return;
 
             Health = Mathf.Max(0, Health - damage);
-            // GameEventSystem.Instance.Publish(GameEvents.HEALTH_CHANGED, new HealthData { Current = Health, Max = MaxHealth });
+            GameEventSystem.Instance.Publish(GameEvents.HEALTH_CHANGED, new HealthData { Current = Health, Max = MaxHealth });
 
             if (Health <= 0)
             {
@@ -72,21 +72,21 @@ namespace Assets.Scripts.MVC.Models.Player
         {
             if (Health <= 0) return;
             Health = Mathf.Min(MaxHealth, Health + amount);
-            // GameEventSystem.Instance.Publish(GameEvents.HEALTH_CHANGED, new HealthData { Current = Health, Max = MaxHealth });
+            GameEventSystem.Instance.Publish(GameEvents.HEALTH_CHANGED, new HealthData { Current = Health, Max = MaxHealth });
         }
 
         public void AddScore(int points)
         {
             if (points <= 0) return;
             Score += points;
-            // GameEventSystem.Instance.Publish(GameEvents.SCORE_CHANGED, Score);
+            GameEventSystem.Instance.Publish(GameEvents.SCORE_CHANGED, Score);
         }
 
         public void AddCoins(int amount)
         {
             if (amount <= 0) return;
             Coins += amount;
-            // GameEventSystem.Instance.Publish(GameEvents.COINS_CHANGED, Coins);
+            GameEventSystem.Instance.Publish(GameEvents.COINS_CHANGED, Coins);
         }
 
         public void LoseLife()
@@ -94,32 +94,32 @@ namespace Assets.Scripts.MVC.Models.Player
             if (Lives <= 0) return;
 
             Lives--;
-            // GameEventSystem.Instance.Publish(GameEvents.LIVES_CHANGED, Lives);
+            GameEventSystem.Instance.Publish(GameEvents.LIVES_CHANGED, Lives);
 
             if (Lives > 0)
             {
                 Health = MaxHealth;
-                // GameEventSystem.Instance.Publish(GameEvents.HEALTH_CHANGED, new HealthData { Current = Health, Max = MaxHealth });
-                // GameEventSystem.Instance.Publish(GameEvents.PLAYER_RESPAWNED);
+                GameEventSystem.Instance.Publish(GameEvents.HEALTH_CHANGED, new HealthData { Current = Health, Max = MaxHealth });
+                GameEventSystem.Instance.Publish(GameEvents.PLAYER_RESPAWNED);
             }
             else
             {
                 Health = 0;
-                // GameEventSystem.Instance.Publish(GameEvents.HEALTH_CHANGED, new HealthData { Current = Health, Max = MaxHealth });
-                // GameEventSystem.Instance.Publish(GameEvents.PLAYER_DIED);
+                GameEventSystem.Instance.Publish(GameEvents.HEALTH_CHANGED, new HealthData { Current = Health, Max = MaxHealth });
+                GameEventSystem.Instance.Publish(GameEvents.PLAYER_DIED);
             }
         }
 
         public void AddLife()
         {
             Lives++;
-            // GameEventSystem.Instance.Publish(GameEvents.LIVES_CHANGED, Lives);
+            GameEventSystem.Instance.Publish(GameEvents.LIVES_CHANGED, Lives);
         }
 
         public void SetInvulnerability(bool state)
         {
             IsInvulnerable = state;
-            // GameEventSystem.Instance.Publish(GameEvents.PLAYER_INVULNERABILITY_STATUS_CHANGED, state);
+            GameEventSystem.Instance.Publish(GameEvents.PLAYER_INVULNERABILITY_STATUS_CHANGED, state);
         }
 
         public void ResetForNewGame()
@@ -132,10 +132,10 @@ namespace Assets.Scripts.MVC.Models.Player
             IsInvulnerable = false;
             InvulnerabilityTimer = 0f;
 
-            // GameEventSystem.Instance.Publish(GameEvents.HEALTH_CHANGED, new HealthData { Current = Health, Max = MaxHealth });
-            // GameEventSystem.Instance.Publish(GameEvents.SCORE_CHANGED, Score);
-            // GameEventSystem.Instance.Publish(GameEvents.COINS_CHANGED, Coins);
-            // GameEventSystem.Instance.Publish(GameEvents.LIVES_CHANGED, Lives);
+            GameEventSystem.Instance.Publish(GameEvents.HEALTH_CHANGED, new HealthData { Current = Health, Max = MaxHealth });
+            GameEventSystem.Instance.Publish(GameEvents.SCORE_CHANGED, Score);
+            GameEventSystem.Instance.Publish(GameEvents.COINS_CHANGED, Coins);
+            GameEventSystem.Instance.Publish(GameEvents.LIVES_CHANGED, Lives);
         }
 
         public struct HealthData

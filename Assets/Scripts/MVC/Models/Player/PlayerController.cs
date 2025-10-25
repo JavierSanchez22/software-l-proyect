@@ -2,7 +2,7 @@ using UnityEngine;
 using Assets.Scripts.MVC.Models.Player;
 using Assets.Scripts.Interfaces;
 using Assets.Scripts.Core;
-// using DinoRunner.Patterns.Observer;
+using Assets.Scripts.Patterns.Observer;
 
 namespace Assets.Scripts.MVC.Models.Player
 {
@@ -47,7 +47,7 @@ namespace Assets.Scripts.MVC.Models.Player
                 enabled = false;
                 return;
             }
-/*
+
             GameEventSystem.Instance.Subscribe(GameEvents.PLAYER_DIED, OnPlayerDied);
             GameEventSystem.Instance.Subscribe(GameEvents.PLAYER_RESPAWNED, OnPlayerRespawned);
 
@@ -55,16 +55,14 @@ namespace Assets.Scripts.MVC.Models.Player
             GameEventSystem.Instance.Publish(GameEvents.SCORE_CHANGED, playerModel.Score);
             GameEventSystem.Instance.Publish(GameEvents.COINS_CHANGED, playerModel.Coins);
             GameEventSystem.Instance.Publish(GameEvents.LIVES_CHANGED, playerModel.Lives);
-            */
         }
 
-/*
         private void OnDestroy()
         {
             GameEventSystem.Instance.Unsubscribe(GameEvents.PLAYER_DIED, OnPlayerDied);
             GameEventSystem.Instance.Unsubscribe(GameEvents.PLAYER_RESPAWNED, OnPlayerRespawned);
         }
-*/
+
         private void Update()
         {
             if (!playerModel.IsAlive() || GameManager.Instance.CurrentState != GameState.Playing)

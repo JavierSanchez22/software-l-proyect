@@ -1,236 +1,111 @@
 using UnityEngine;
-using System.IO;
-using System.Text;
-using RedRunner.Interfaces;
-using RedRunner.Patterns.Singleton;
-using RedRunner.Core; // For ServiceLocator
-using BayatGames.SaveGameFree.Serializers; // Using BayatGames serializers
-using BayatGames.SaveGameFree.Encoders; // Using BayatGames encoders
+using Assets.Scripts.Interfaces;
+using Assets.Scripts.Patterns.Singleton;
+using Assets.Scripts.Core; // For ServiceLocator
+using System;
+using System.IO; // Para manejo de archivos
+using System.Text; // Para Encoding
+using System.Collections.Generic;
 
-
-namespace RedRunner.Services
+namespace Assets.Scripts.Services
 {
-    public class SaveService : SingletonMonoBehaviour<SaveService>,
-    
-    ISaveService
+    public class SaveService : SingletonMonoBehaviour<SaveService>, ISaveService
     {
         [Header("Save Settings")]
-        [SerializeField]
-        private SaveFormat defaultSaveFormat = SaveFormat.JSON;
-        [SerializeField] private bool encodeByDefault = false;
-        [SerializeField] private string encodePassword = "yourSecretPassword";
-        // CHANGE THIS!
-        [SerializeField]
-        private SaveGamePath savePath = SaveGamePath.PersistentDataPath;
-        private ISaveGameSerializer serializer;
-        private ISaveGameEncoder encoder;
-        private Encoding encoding = Encoding.UTF8;
-        // Enum matching BayatGames structure if needed, or simplify
-        public enum SaveFormat { JSON, XML, Binary }
+        [SerializeField] private SaveGamePath savePath = SaveGamePath.PersistentDataPath;
+
         public enum SaveGamePath { PersistentDataPath, DataPath }
+        private Encoding encoding = Encoding.UTF8;
 
         protected override void Awake()
         {
             base.Awake();
             if (Instance != this) return;
-            // Initialize serializer based on selection
-            switch (defaultSaveFormat)
-            {
-                case SaveFormat.JSON:
-                    serializer = new
-                SaveGameJsonSerializer(); break;
-                case SaveFormat.XML:
-                    serializer = new SaveGameXmlSerializer();
-                    break;
-                case SaveFormat.Binary:
-                    serializer = new
-                SaveGameBinarySerializer(); break;
-                default: serializer = new SaveGameJsonSerializer(); break;
-            }
-            encoder = new SaveGameSimpleEncoder(); // Or other BayatGames
-            encoder ServiceLocator.Instance.RegisterService<ISaveService>(this);
+            ServiceLocator.Instance.RegisterService<ISaveService>(this);
         }
 
         private string GetFilePath(string key)
         {
-            string directory = "";
-            switch (savePath)
-            {
-                case SaveGamePath.PersistentDataPath:
-                    directory = Application.persistentDataPath; break;
-                case SaveGamePath.DataPath:
-                    directory = Application.dataPath;
-                    break;
-                default: 
-                    directory = Application.persistentDataPath; break;
-            }
-            // Combine path safely
-            return Path.Combine(directory, key + GetExtension());
+            string directory = (savePath == SaveGamePath.DataPath) ? Application.dataPath : Application.persistentDataPath;
+            return Path.Combine(directory, key + ".json"); // Siempre guardar como .json
         }
 
-        private string GetExtension()
-        {
-            switch (defaultSaveFormat)
-            {
-                case SaveFormat.JSON: return ".json";
-                case SaveFormat.XML: return ".xml";
-                case SaveFormat.Binary: return ".bin";
-                default: return ".sav";
-            }
-        }
-
-
-        // --- ISaveService Implementation ---
         public void SaveGame<T>(string key, T data)
         {
             string filePath = GetFilePath(key);
             try
             {
-                // Ensure directory exists
-                string directoryPath = Path.GetDirectoryName(filePath);
+                string json = JsonUtility.ToJson(data, true);
 
-                #if !UNITY_WEBGL // IO operations not directly supported in
-                                WebGL in the same way
-                            if (!Directory.Exists(directoryPath))
-                                    Directory.CreateDirectory(directoryPath);
-                #endif
-                
-                using (MemoryStream memoryStream = new MemoryStream())
-                {
-                    serializer.Serialize<T>(data, memoryStream, encoding);
-                    byte[] bytes = memoryStream.ToArray();
-                    if (encodeByDefault)
-                    {
-                        string unencodedString = encoding.GetString(bytes);
-                        string encodedString = encoder.Encode(unencodedString, encodePassword);
-                        bytes = encoding.GetBytes(encodedString);
-                    }
-                    // Save bytes (handles WebGL via PlayerPrefs, others via
-                    File IO)
-                #if UNITY_WEBGL
-                PlayerPrefs.SetString(key,
-                System.Convert.ToBase64String(bytes)); // Store as Base64 in PlayerPrefs for
-                WebGL
-                PlayerPrefs.Save();
-                #else
-                File.WriteAllBytes(filePath, bytes);
-                #endif
-                }
-                // Debug.Log($"[SaveService] Saved '{key}' to {filePath}");
+                string directoryPath = Path.GetDirectoryName(filePath);
+                if (!Directory.Exists(directoryPath)) Directory.CreateDirectory(directoryPath);
+
+                File.WriteAllText(filePath, json, encoding);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                Debug.LogError($"[SaveService] Error saving '{key}' to { filePath}: { ex.Message}");
+                Debug.LogError($"[SaveService-JSON] Error saving '{key}' to {filePath}: {ex.Message}");
             }
         }
+
         public T LoadGame<T>(string key, T defaultValue = default)
         {
             string filePath = GetFilePath(key);
-            T result = defaultValue;
+            if (!File.Exists(filePath))
+            {
+                return defaultValue;
+            }
+
             try
             {
-                byte[] bytes = null;
-                
-                #if UNITY_WEBGL
-                if (PlayerPrefs.HasKey(key))
-                {
-                string base64 = PlayerPrefs.GetString(key);
-                bytes = System.Convert.FromBase64String(base64);
-                } else return defaultValue; // Key not found in
-                PlayerPrefs
-                #else
-                                if (!File.Exists(filePath)) return defaultValue; // File
-                                not found
-                            bytes = File.ReadAllBytes(filePath);
-                #endif
+                string json = File.ReadAllText(filePath, encoding);
 
-                if (bytes == null || bytes.Length == 0) return defaultValue;
-                if (encodeByDefault)
+                if (string.IsNullOrEmpty(json))
                 {
-                    string encodedString = encoding.GetString(bytes);
-                    string decodedString = encoder.Decode(encodedString, encodePassword);
-                    bytes = encoding.GetBytes(decodedString);
+                    return defaultValue;
                 }
-                using (MemoryStream memoryStream = new MemoryStream(bytes))
-                {
-                    result = serializer.Deserialize<T>(memoryStream, encoding);
-                }
-                // Debug.Log($"[SaveService] Loaded '{key}' from {filePath}");
+
+                T data = JsonUtility.FromJson<T>(json);
+                return EqualityComparer<T>.Default.Equals(data, default) ? defaultValue : data;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                Debug.LogError($"[SaveService] Error loading '{key}' from { filePath}: { ex.Message}. Returning default value.");
-                result = defaultValue; // Return default on error
+                Debug.LogError($"[SaveService-JSON] Error loading '{key}' from {filePath}: {ex.Message}. Returning default.");
+                return defaultValue;
             }
-            // Return default if deserialization failed (result might be null / default)
-            return EqualityComparer<T>.Default.Equals(result, default) ? defaultValue : result;
         }
 
         public bool HasSave(string key)
         {
-            string filePath = GetFilePath(key);
-
-            #if UNITY_WEBGL
-            return PlayerPrefs.HasKey(key);
-            #else
-                        return File.Exists(filePath);
-            #endif
-
+            return File.Exists(GetFilePath(key));
         }
+
         public void DeleteSave(string key)
         {
             string filePath = GetFilePath(key);
-
-            #if UNITY_WEBGL
-            PlayerPrefs.DeleteKey(key);
-            #else
-
-            try { if (File.Exists(filePath)) File.Delete(filePath); }
-            catch (System.Exception ex)
+            try
             {
-                Debug.LogError($"Error deleting file { filePath}: { ex.Message}"); }
-            #endif
+                if (File.Exists(filePath)) File.Delete(filePath);
+            }
+            catch (Exception ex) { Debug.LogError($"Error deleting file {filePath}: {ex.Message}"); }
         }
 
-public void DeleteAllSaves()
+        public void DeleteAllSaves()
         {
-            string directory = "";
-            switch (savePath)
-            {
-                case SaveGamePath.PersistentDataPath: directory = Application.persistentDataPath; 
-                    break;
-                case SaveGamePath.DataPath: directory = Application.dataPath;
-                    break;
-            }
-
-            #if UNITY_WEBGL
-
-            PlayerPrefs.DeleteAll(); // Deletes ALL player prefs, use
-            with caution
-            Debug.LogWarning("[SaveService] DeleteAllSaves on WebGL
-            clears ALL PlayerPrefs.");
-            #else
-            
+            string directory = (savePath == SaveGamePath.DataPath) ? Application.dataPath : Application.persistentDataPath;
             try
             {
                 if (Directory.Exists(directory))
                 {
-                    // Delete files matching the extension, or all files
-                    if careful
-                    string[] files = Directory.GetFiles(directory, "*" + GetExtension());
+                    string[] files = Directory.GetFiles(directory, "*.json"); // Solo borrar .json
                     foreach (string file in files) { File.Delete(file); }
-                    Debug.Log($"[SaveService] Deleted all files extension '{GetExtension()}' in { directory}");
-                // Optionally delete directories too, but be very careful
+                    Debug.Log($"[SaveService-JSON] Deleted all '.json' files in {directory}");
                 }
             }
+            catch (Exception ex) { Debug.LogError($"Error deleting all saves in {directory}: {ex.Message}"); }
+        }
 
-            catch (System.Exception ex)
-            {
-                Debug.LogError($"Error deleting all saves in { directory}: { ex.Message}"); }
-            #endif
-            }
-
-protected override void OnDestroy()
+        protected override void OnDestroy()
         {
             if (ServiceLocator.Instance != null && ServiceLocator.Instance.HasService<ISaveService>() && ServiceLocator.Instance.GetService<ISaveService>() == this)
             {
