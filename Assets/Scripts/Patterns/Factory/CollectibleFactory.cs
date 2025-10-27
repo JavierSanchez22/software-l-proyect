@@ -30,7 +30,7 @@ namespace DinoRunner.Patterns.Factory
             m.collectibleTypeIdentifier == typeIdentifier);
             if (mapping == null || mapping.collectiblePrefab == null)
             {
-                Debug.LogError($"[CollectibleFactory] Prefab not found for type: { typeIdentifier} ");
+                Debug.LogError($"[CollectibleFactory] Prefab not found for type: {typeIdentifier} ");
                 return null;
             }
             // TODO: Replace Instantiate with pool logic
@@ -40,6 +40,7 @@ namespace DinoRunner.Patterns.Factory
             return instance;
         }
     }
+    
 
 
 public GameObject CreateCollectible(string typeIdentifier, Vector3 position)
