@@ -9,7 +9,7 @@ namespace DinoRunner.Patterns.Factory
         [System.Serializable]
         public class CollectiblePrefabMapping
         {
-            public string collectibleTypeIdentifier; // e.g., "Coin", "HealthPack"
+            public string collectibleTypeIdentifier; 
             public GameObject collectiblePrefab;
         }
         [Header("Collectible Prefabs")]
