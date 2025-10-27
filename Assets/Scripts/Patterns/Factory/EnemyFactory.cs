@@ -1,6 +1,6 @@
 using UnityEngine;
-using DinoRunner.MVC.Models.Enemy; // For EnemyData, EnemyController etc.
-using System.Collections.Generic; // For lists if using pooling
+using DinoRunner.MVC.Models.Enemy; 
+using System.Collections.Generic;
 namespace DinoRunner.Patterns.Factory
 {
     public class EnemyFactory : Singleton.SingletonMonoBehaviour<EnemyFactory>
@@ -8,13 +8,13 @@ namespace DinoRunner.Patterns.Factory
         [System.Serializable]
         public class EnemyPrefabMapping
         {
-            public string enemyTypeIdentifier; // e.g., "GroundPatrol", "FlyingChase"
-            public GameObject enemyPrefab; // Assign prefab in Inspector
+            public string enemyTypeIdentifier; 
+            public GameObject enemyPrefab;
         }
         [Header("Enemy Prefabs")]
         [SerializeField] private List<EnemyPrefabMapping> enemyPrefabs;
-        [SerializeField] private Transform enemyContainer; // Optional parent for spawned enemies
-        // TODO: Implement Object Pooling here if desired
+        [SerializeField] private Transform enemyContainer;
+
         protected override void Awake()
         {
             base.Awake();
@@ -35,11 +35,10 @@ namespace DinoRunner.Patterns.Factory
             }
             GameObject enemyInstance = Instantiate(mapping.enemyPrefab,
                 position, Quaternion.identity, enemyContainer);
-            enemyInstance.name = $"{typeIdentifier}_{Time.time}"; // Unique name
-            // Optionally initialize components here if needed, though
-            // Awake/Start is preferred
+            enemyInstance.name = $"{typeIdentifier}_{Time.time}"; 
+           
             EnemyController controller = enemyInstance.GetComponent<EnemyController>();
-            // controller?.Initialize(...);
+       
             return enemyInstance;
         }
     }
