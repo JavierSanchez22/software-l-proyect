@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Assets.Scripts.Interfaces
+namespace RedRunner.Interfaces
 {
     public interface IMovementStrategy
     {
